@@ -1,0 +1,266 @@
+<html>
+    <title>VTR</title>
+    <body style="background-color: #393939">
+    <left style="background-color: #717171;">
+        <input id="sp1" onclick="set1()" type="button" value="映像送出" class="g1b"><hr>
+        <input id="sp2" onclick="set1()" type="button" value="テロップ作成" class="g1b g1-2">
+        <input id="sp3" onclick="set1()" type="button" value="時刻表示" class="g1b g1-2">
+        <input id="sp4" onclick="set1()" type="button" value="左右反転" class="g1b g1-2">
+    </left>
+    <prv style="background-color: #646464;">
+        <img width="100%" src="" id="previewimage" style="filter: blur(10px);">
+    </prv>
+    <asset style="background-color: #646464;">
+        <div id="vtrbox">
+
+        </div>
+    </asset>
+    <next style="background-color: #646464;">
+        <img id="nextimage">
+    </next>
+    <label for="fileInput">
+    <upload style="background-color: #646464;" >
+        <input type="file" id="fileInput"><video id="videoElement"></video><canvas id="canvasElement"></canvas>
+    </upload>
+    <nowoa style="background-color: #646464;" >
+        <video id="preloadoa" style="visibility: hidden;" preload="auto"></video>
+        <div id="oa">
+        <!--ここにオンエア要素が動的生成される-->
+        </div>
+    </nowoa>
+    </label>
+    </body>
+    <style>
+        upload{
+         position:absolute;
+         display:block;
+         top:480px;
+         left:68vw;
+         width:30vw;
+         height:50px;
+        }
+        nowoa{
+         position:absolute;
+         display:block;
+         top:270px;
+         left:68vw;
+         width:30vw;
+         height:50px;
+        }
+        next{
+         position:absolute;
+         display:flex;
+         top:10px;
+         left:68vw;
+         width:30vw;
+         height:200px;
+
+        }
+        next::before{
+            display:block;
+            content:"NEXT";
+            position:relative;
+            background:greenyellow;
+            font-size:smaller;
+            top:0px;
+            padding:10px;
+        }
+        #nextimage{
+        height: 100%;
+        width:85%;
+        }
+        #videoElement{
+            visibility: hidden;
+            width:0px;
+        }
+        #canvasElement{
+            visibility: hidden;
+            width:0px;
+        }
+        prv{
+         position:absolute;
+         display:block;
+         top:10px;
+         left:200px;
+         height:50%;
+         width:50vw;
+        }
+        asset{
+         overflow-y: scroll;
+         overflow-x: hidden;
+         position:absolute;
+         display:block;
+         top:55%;
+         left:200px;
+         height:40%;
+         width:50vw;
+        }
+        #vtrbox{
+            display:flex;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        asset::before{
+            display:block;
+            content:"Assets";
+            position:relative;
+            background:#393939;
+            border:solid 2px rgba(70,70,70,60);
+            width:100%;
+            font-size:smaller;
+            top:0px;
+        }
+        upload::before{
+            display:block;
+            content:"Upload";
+            position:relative;
+            background:#393939;
+            border:solid 2px rgba(70,70,70,60);
+            width:99%;
+            font-size:smaller;
+            top:0px;
+        }
+        .g1b{
+            margin-top: 20px;
+            border:none;
+            display:block;
+            width:100px;
+            text-align: center;
+            height: 65px;
+        }
+        .g1-2{
+            margin-top: 15px;
+        }
+        left{
+         position:absolute;
+         display:block;
+         top:0;
+         left:0;
+         height:100%;
+         padding:0px 10px 0px 10px;    
+        }
+        .vtrimage{
+            width:100%;
+        }
+        .vtrtumb{
+            margin:10px;
+            border:silver groove 5px;
+            display:flexbox;
+            width:170px;
+            text-align: center;
+            background: #646464;
+        }
+    </style>
+    <script>
+        let connection;//変更予定
+        var opre = new PresentationRequest('viewer.html');
+        var g12e = document.getElementsByClassName("g1-2");
+        vtrt=[];vp1=[];
+        for (var i = 0; i < g12e.length; i++) {g12e[i].disabled = true;}
+        function set1(){
+            if(document.getElementById("sp1").value=="映像送出"){
+                document.getElementById("sp1").value="送出停止";
+                document.getElementById("sp1").setAttribute("style","background:red;");
+                opre.start()
+           .then(connection => {
+            for (var i = 0; i < g12e.length; i++) {g12e[i].disabled = false;}
+           })
+           .catch(error => {
+               document.getElementById("sp1").value="映像送出";
+                document.getElementById("sp1").setAttribute("style","background:#ebecec;");
+                alert("接続エラー \n 接続を確認し送出先を選択してください \n ・windowsの場合➡表示モードが「拡張」になっているか確認する \n ・iPadやその他Androidの場合➡ケーブルの接続や動作要件を満たす"); 
+                //本番時は絶対にtrueにしないと矛盾が発生して正常動作しない
+               for (var i = 0; i < g12e.length; i++) {g12e[i].disabled = true;}
+            });
+            }else{
+                document.getElementById("sp1").value="映像送出";
+                document.getElementById("sp1").setAttribute("style","background:#ebecec;");
+                for (var i = 0; i < g12e.length; i++) {g12e[i].disabled = true;}
+                opre.close();
+            }
+        }
+        const fileInput = document.getElementById('fileInput');
+      const videoElement = document.getElementById('videoElement');
+      const canvasElement = document.getElementById('canvasElement');
+      const thumbnailElement = document.getElementById('previewimage');
+
+      fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        const videoURL = URL.createObjectURL(file);
+        videoElement.src = videoURL;
+        setTimeout(convertVideoToBase64,1000);
+      });
+
+      function convertVideoToBase64() {
+        const canvasContext = canvasElement.getContext('2d');
+        canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+        const base64VideoData = canvasElement.toDataURL('video/mp4');
+        console.log('Base64 video data:', base64VideoData);
+        setTimeout(generateThumbnail,1000);
+      }
+
+      function generateThumbnail() {
+        const canvasContext = canvasElement.getContext('2d');
+        canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+        const thumbnailData = canvasElement.toDataURL('image/jpeg');
+        thumbnailElement.src = thumbnailData;
+        setTimeout(function(){addVTR(thumbnailData)},1000);
+      }
+      var vtrbox = document.getElementById("vtrbox");
+      var nextimage = document.getElementById("nextimage");
+      var vtrid = 0;
+      function addVTR(im1){
+        vtrid++;
+        var vtrtumb = document.createElement('div');
+        vtrtumb.className="vtrtumb";
+        var timage = document.createElement('img');
+        timage.className="vtrimage";
+        timage.setAttribute("src",im1);
+        vtrtumb.innerHTML="<p>VTR-"+vtrid+"</p>";
+        vtrtumb.appendChild(timage);
+        vtrbox.appendChild(vtrtumb);
+        vtrt.push(im1);
+        vp1.push(im1);
+      }
+      var keyexc=["q","w","e","r","t","y","u","i","o"];
+      document.addEventListener('keydown', keydownEvent,false);
+    function keydownEvent(event){
+        if(keyexc.indexOf(event.key) != -1){
+        nextimage.src=vtrt[parseInt(keyexc.indexOf(event.key))];
+           // opre.sender.postMessage({
+            //type: 'callFunction',
+            //functionName: 'prd',
+           // });
+            prd(vp1[parseInt(keyexc.indexOf(event.key))]);
+        //opre.send('{"npath": vp[parseInt(keyexc.indexOf(event.key) - 1)]}');
+        }else if(event.key == "l"){
+            change();
+            //    thumbnailElement.src=nextimage.src;
+           // opre.sender.postMessage({
+           // type: 'callFunction',
+            //functionName: 'change'});
+        }else{
+            return false;
+        }
+    }
+
+    var oav = document.getElementById("oa");
+    var poav = document.getElementById("preloadoa");
+    function prd(ur1){
+        poav.src=ur1;
+    }
+
+    function change() {
+  var oac = document.createElement('video');
+  oac.src = poav.src;
+  oac.id = 'mplayer';
+    oac.play();
+    oac.addEventListener('ended', function() {
+      endach();
+    }, false);
+    }
+    function endach(){
+        alert("終了");
+    }
+    </script>
+</html>

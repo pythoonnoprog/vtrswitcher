@@ -1,0 +1,42 @@
+<video id="preloadoa" style="visibility: hidden;" preload="auto"></video>
+<div id="oa">
+<!--ここにオンエア要素が動的生成される-->
+</div>
+<script>
+      const addConnection = (connection) => {};
+
+navigator.presentation.receiver.connectionList.then((list) => {
+  list.connections.forEach((connection) => {
+    addConnection(connection);
+  });
+  list.onconnectionavailable = (evt) => {
+    addConnection(evt.connection);
+  };
+});
+    var oav = document.getElementById("oa");
+    var poav = document.getElementById("preload");
+    function prd(ur1){
+        poav.src=ur1;
+    }
+    function change(){
+        function change() {
+  var oac = document.createElement('video');
+  oac.src = poav.src;
+  oac.id = 'mplayer';
+
+  navigator.presentation.requestSession().then((session) => {
+    session.send(oac);
+    oac.play();
+    oac.addEventListener('ended', function() {
+      endach();
+    }, false);
+  }).catch((error) => {
+    console.error(error.name + ': ' + error.message);
+  });
+}
+
+    }
+    function endach(){
+        alert("終了");
+    }
+</script>

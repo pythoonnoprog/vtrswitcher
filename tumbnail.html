@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Video to Base64 and Thumbnail</title>
+  </head>
+  <body>
+    <input type="file" id="fileInput">
+    <br><br>
+    <video id="videoElement" controls></video>
+    <br><br>
+    <button onclick="convertVideoToBase64()">Convert to Base64</button>
+    <br><br>
+    <canvas id="canvasElement"></canvas>
+    <img id="thumbnailElement">
+    <br><br>
+    <button onclick="generateThumbnail()">Generate Thumbnail</button>
+    <script>
+      const fileInput = document.getElementById('fileInput');
+      const videoElement = document.getElementById('videoElement');
+      const canvasElement = document.getElementById('canvasElement');
+      const thumbnailElement = document.getElementById('thumbnailElement');
+
+      fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        const videoURL = URL.createObjectURL(file);
+        videoElement.src = videoURL;
+      });
+
+      function convertVideoToBase64() {
+        const canvasContext = canvasElement.getContext('2d');
+        canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+        const base64VideoData = canvasElement.toDataURL('video/mp4');
+        console.log('Base64 video data:', base64VideoData);
+      }
+
+      function generateThumbnail() {
+        const canvasContext = canvasElement.getContext('2d');
+        canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+        const thumbnailData = canvasElement.toDataURL('image/jpeg');
+        thumbnailElement.src = thumbnailData;
+        console.log('Thumbnail data:', thumbnailData);
+      }
+    </script>
+  </body>
+</html>
