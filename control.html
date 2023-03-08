@@ -18,19 +18,23 @@
     <next style="background-color: #646464;">
         <img id="nextimage">
     </next>
-    <label for="fileInput">
     <upload style="background-color: #646464;" >
         <input type="file" id="fileInput"><video id="videoElement"></video><canvas id="canvasElement"></canvas>
     </upload>
     <nowoa style="background-color: #646464;" >
-        <video id="preloadoa" style="visibility: hidden;" preload="auto"></video>
-        <div id="oa">
-        <!--ここにオンエア要素が動的生成される-->
-        </div>
+        <div id="prd"></div>
     </nowoa>
-    </label>
+
     </body>
     <style>
+        .prde{
+            visibility: hidden;
+            width:0px;
+        }
+        .nowonair{
+            visibility: visible;
+            width:100%; 
+        }
         upload{
          position:absolute;
          display:block;
@@ -188,15 +192,18 @@
         const file = event.target.files[0];
         const videoURL = URL.createObjectURL(file);
         videoElement.src = videoURL;
+        vp1.push(videoURL);
         setTimeout(convertVideoToBase64,1000);
+
       });
 
       function convertVideoToBase64() {
         const canvasContext = canvasElement.getContext('2d');
         canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
         const base64VideoData = canvasElement.toDataURL('video/mp4');
-        console.log('Base64 video data:', base64VideoData);
+        
         setTimeout(generateThumbnail,1000);
+
       }
 
       function generateThumbnail() {
@@ -220,7 +227,6 @@
         vtrtumb.appendChild(timage);
         vtrbox.appendChild(vtrtumb);
         vtrt.push(im1);
-        vp1.push(im1);
       }
       var keyexc=["q","w","e","r","t","y","u","i","o"];
       document.addEventListener('keydown', keydownEvent,false);
@@ -244,23 +250,65 @@
         }
     }
 
-    var oav = document.getElementById("oa");
-    var poav = document.getElementById("preloadoa");
+    var preloadwmovie = document.getElementById("prd");
+    var loaderid = 0;
     function prd(ur1){
-        poav.src=ur1;
-    }
 
-    function change() {
-  var oac = document.createElement('video');
-  oac.src = poav.src;
-  oac.id = 'mplayer';
-    oac.play();
-    oac.addEventListener('ended', function() {
-      endach();
-    }, false);
+      if(loaderid==2){
+        var oac = document.createElement('video');
+        oac.src = ur1;
+        oac.id = 'preloader'+loaderid;
+        oac.className="prde";
+        oac.setAttribute("preload","true");
+        preloadwmovie.appendChild(oac);
+        oac.addEventListener('ended', function() {endach1();}, false);
+        loaderid = loaderid - 1;
+        }else if(loaderid==1){
+            loaderid++;
+        var oac = document.createElement('video');
+        oac.src = ur1;
+        oac.id = 'preloader'+loaderid;
+        oac.className="prde";
+        oac.setAttribute("preload","true");
+        preloadwmovie.appendChild(oac);
+        oac.addEventListener('ended', function() {endach2();}, false);
+        
+      }else{
+        loaderid++;
+        var oac = document.createElement('video');
+        oac.src = ur1;
+        oac.id = 'preloader'+loaderid;
+        oac.className="prde";
+        preloadwmovie.appendChild(oac);
+        oac.addEventListener('ended', function() {endach1();}, false);
+      }
     }
-    function endach(){
-        alert("終了");
+var aida=0;
+    function change() {
+aida++;
+        if(aida=>2){
+        if(loaderid==2){
+            document.getElementById("preloader1").className="nowonair";
+            document.getElementById("preloader1").play();
+            document.getElementById("preloader2").remove();
+        }else if(loaderid==1){
+            document.getElementById("preloader2").className="nowonair";
+            document.getElementById("preloader2").play();
+            document.getElementById("preloader1").remove();
+        }
+    }else{
+        var aida = 2;
+        document.getElementById("preloader1").className="nowonair";
+        document.getElementById("preloader1").play();
+    }
+    }
+    function endach1(){
+        document.getElementById("preloader1").remove();
+        change();
+    }
+    function endach2(){
+        document.getElementById("preloader2").remove();
+        change();
     }
     </script>
 </html>
